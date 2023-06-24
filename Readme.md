@@ -112,9 +112,22 @@ usually have these:
    also put a `handlers.go` within the directory, so that you can refer it to
    `todo.CreateItemHandler` and I think that's better than my approach here.
 
-## Todo
+## Testing And Faking
 
-- [ ] Testing by using build tags to avoid interface.
+I'm rarely uses mocks. Read the rationale
+[here](https://joeblu.com/blog/2023_06_mocks/). I do use fake. The good thing
+about go it allows build tags which will allow conditional compilation of files.
+Because I am using files to demarcate boundaries and responsibilities, this
+works well.
+
+Take a look is the `repo.go` and `repo_fake.go` for comparison.
+
+To build or run the program with fake implementation, you can just use `--tags`
+parameter, and the fake version will be compiled instead.
+
+```
+go build --tags=fake 
+```
 
 ## Summary
 
