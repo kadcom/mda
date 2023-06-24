@@ -86,20 +86,25 @@ is a boundaries in Go. Everything inside this module is isolated. Inside this
 module there's no rule on how you organise files. However, in my project, I
 usually have these:
 
-1. **The domain object**. This defines the objects which maintain its state and
+1. __The domain object__. This defines the objects which maintain its state and
    being persisted. In this example it's in the `todo_item.go` file.
 
-2. **The repository**. This is an abstraction where you can fetch and save your
+2. __The repository__. This is an abstraction where you can fetch and save your
    domain objects. I just name it 'repository' because it's _somewhat_ similar
    to repository pattern but I implemented it as with pure functions in
    `repo.go`.
 
-3. **The storage**. This is just a place where you connect, read, and write on
+3. __The storage__. This is just a place where you connect, read, and write on
    your repository. In this example, it's very simple, it's just a global `pool`
    object which represent a connection pool to postgresql instance. It's in the
    `db.go`.
 
-4. **The protocols**. This is a place where you put the handlers to your
+4. __The service__. This is a file with functions which define a _transaction
+   boundary_. This service is agnostic with the protocols. __There should be no
+   protocol-related data__ in here such as HTTP Response Code. Also implemented
+   in pure functions in `service.go`.
+
+5. __The protocols__. This is a place where you put the handlers to your
    requests. I put it on separate package `handlers` because I don't want to use
    something like `CreateTodoItemHandler` and instead I can just use
    `handlers.CreateTodoItem`. The implication is that if you have many modules
@@ -107,18 +112,18 @@ usually have these:
    also put a `handlers.go` within the directory, so that you can refer it to
    `todo.CreateItemHandler` and I think that's better than my approach here.
 
-# Todo
+## Todo
 
 - [ ] Testing by using build tags to avoid interface.
 
-# Summary
+## Summary
 
 This project is a heuristic, not a guide or a 'framework' of structure. It's to
 show that you can have a sensible code structure and architecture by sticking
 to the simplicity of Go.
 
 
-# LICENSE
+## LICENSE
 
 ```
 Copyright (c) 2023 Didiet Noor
