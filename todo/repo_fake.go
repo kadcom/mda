@@ -12,13 +12,13 @@ import (
 
 var items []TodoItem
 
-func FindAllItems(ctx context.Context, tx pgx.Tx) ([]TodoItem, error) {
+func findAllItems(ctx context.Context, tx pgx.Tx) ([]TodoItem, error) {
 
 	log.Debug().Msg("Fake find all item")
 	return items, nil
 }
 
-func FindItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error) {
+func findItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error) {
 
 	log.Debug().Msg("Fake find item")
 
@@ -39,7 +39,7 @@ func FindItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error
 	return item, nil
 }
 
-func SaveItem(ctx context.Context, tx pgx.Tx, item TodoItem) error {
+func saveItem(ctx context.Context, tx pgx.Tx, item TodoItem) error {
 
 	log.Debug().Msg("Fake save item")
 

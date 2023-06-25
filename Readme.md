@@ -15,7 +15,7 @@ who want to write Go in my experience they came from these backgrounds:
 
 They have this popular frameworks with a "canonical file structure" that you
 must adhere coming to Go with no 'one true way' and no 'one true frameworks' is
-unfamiliar. 
+unfamiliar.
 
 When I saw projects on the wild, or when I read the projects from my clients,
 there are patterns that I recognised. Most of them are trying to fit Go to their
@@ -74,7 +74,8 @@ those dependencies
    avoid to use pointer when I can use a value instead. This dependency is
    optional.
 
-5. `yaml` is a library to parse yaml file
+5. `yaml` is a library to parse yaml file. This is also optional dependencies.
+   If you don't like YAML you can change it to anything you want.
 
 ## How to navigate this project
 
@@ -83,11 +84,11 @@ those dependencies
 In the root of this project there's a `main` package that have `main.go`. This
 is the place where you put your main program as well as runtime configuration.
 
-### The modules 
+### The modules
 
-Within the root project there are `modules` implemented as Go package. Package
+Within the root project there are _modules_ implemented as Go package. Package
 is a boundaries in Go. Everything inside this module is isolated. Inside this
-module there's no rule on how you organise files. However, in my project, I
+module there's __no rules__ on how you organise files. However, in my project, I
 usually have these:
 
 1. __The domain object__. This defines the objects which maintain its state and
@@ -108,13 +109,28 @@ usually have these:
    protocol-related data__ in here such as HTTP Response Code. Also implemented
    in pure functions in `service.go`.
 
-5. __The protocols__. This is a place where you put the handlers to your
+5. __The protocols__. ~~This is a place where you put the handlers to your
    requests. I put it on separate package `handlers` because I don't want to use
    something like `CreateTodoItemHandler` and instead I can just use
    `handlers.CreateTodoItem`. The implication is that if you have many modules
    with the same name `handlers` then you still need to name it. So, you can
    also put a `handlers.go` within the directory, so that you can refer it to
-   `todo.CreateItemHandler` and I think that's better than my approach here.
+   `todo.CreateItemHandler` and I think that's better than my approach here.~~
+   Inside the module there's `routes.go`. Every routes for this module is here.
+   This will export `*chi.Mux` object which is implementing `chi.Router`
+   interface. This isolates any changes to the subrouter to this module. In
+   `main.go` you can just mount the router.
+
+> **Note**
+> Previously, most of the functions are exported. On this version, I've made
+> functions as private as I can.
+
+Exported functions on each module area as follows:
+
+- `SetPool()` for setting up the global database connection pool. 
+- `Router()` for exporting the `chi.Mux` object to be mounted.
+- The domain object, this is optional. If you want to hide and isolate your
+  domain objects, then you can just make it private
 
 ## Testing And Faking
 

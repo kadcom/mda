@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"mda/todo"
-	"mda/todo/handlers"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -45,10 +44,7 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 
-	r.Get("/todo", handlers.ListItems)
-	r.Get("/todo/{itemId}", handlers.GetItem)
-	r.Post("/todo", handlers.CreateItem)
-	r.Post("/todo/done", handlers.MakeItemDone)
+	r.Mount("/todo", todo.Router())
 
 	log.Info().Msg("Starting up server...")
 

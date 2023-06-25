@@ -12,7 +12,7 @@ import (
 	"gopkg.in/guregu/null.v4"
 )
 
-func FindAllItems(ctx context.Context, tx pgx.Tx) ([]TodoItem, error) {
+func findAllItems(ctx context.Context, tx pgx.Tx) ([]TodoItem, error) {
 	var itemCount int
 
 	row := tx.QueryRow(ctx, "SELECT COUNT(id) as cnt FROM todolist;")
@@ -62,7 +62,7 @@ func FindAllItems(ctx context.Context, tx pgx.Tx) ([]TodoItem, error) {
 	return items, nil
 }
 
-func FindItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error) {
+func findItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error) {
 	q := `SELECT id, title, created_at, done_at FROM todolist WHERE id = $1`
 
 	row := tx.QueryRow(ctx, q, id)
@@ -79,7 +79,7 @@ func FindItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error
 	return item, nil
 }
 
-func SaveItem(ctx context.Context, tx pgx.Tx, item TodoItem) error {
+func saveItem(ctx context.Context, tx pgx.Tx, item TodoItem) error {
 	q := `INSERT INTO todolist(id, title, created_at, done_at) VALUES ( $1, $2, $3, $4 )
         ON CONFLICT(id)
 				DO UPDATE SET title=$2, done_at=$4`

@@ -6,14 +6,14 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-func ListItems(ctx context.Context) ([]TodoItem, error) {
+func listItems(ctx context.Context) ([]TodoItem, error) {
 	tx, err := pool.Begin(ctx)
 
 	if err != nil {
 		return nil, err
 	}
 
-	items, err := FindAllItems(ctx, tx)
+	items, err := findAllItems(ctx, tx)
 
 	if err != nil {
 		return nil, err
@@ -24,7 +24,7 @@ func ListItems(ctx context.Context) ([]TodoItem, error) {
 	return items, nil
 }
 
-func CreateItem(ctx context.Context, title string) (id ulid.ULID, err error) {
+func createItem(ctx context.Context, title string) (id ulid.ULID, err error) {
 	todoItem, err := NewTodoItem(title)
 
 	if err != nil {
@@ -37,7 +37,7 @@ func CreateItem(ctx context.Context, title string) (id ulid.ULID, err error) {
 		return
 	}
 
-	err = SaveItem(ctx, tx, todoItem)
+	err = saveItem(ctx, tx, todoItem)
 
 	if err != nil {
 		tx.Rollback(ctx)
@@ -53,14 +53,14 @@ func CreateItem(ctx context.Context, title string) (id ulid.ULID, err error) {
 	return todoItem.Id, nil
 }
 
-func FindItem(ctx context.Context, id ulid.ULID) (item TodoItem, err error) {
+func findItem(ctx context.Context, id ulid.ULID) (item TodoItem, err error) {
 	tx, err := pool.Begin(ctx)
 
 	if err != nil {
 		return
 	}
 
-	item, err = FindItemById(ctx, tx, id)
+	item, err = findItemById(ctx, tx, id)
 
 	if err != nil {
 		return TodoItem{}, err
@@ -70,14 +70,14 @@ func FindItem(ctx context.Context, id ulid.ULID) (item TodoItem, err error) {
 	return
 }
 
-func MakeItemDone(ctx context.Context, id ulid.ULID) error {
+func makeItemDone(ctx context.Context, id ulid.ULID) error {
 	tx, err := pool.Begin(ctx)
 
 	if err != nil {
 		return err
 	}
 
-	item, err := FindItemById(ctx, tx, id)
+	item, err := findItemById(ctx, tx, id)
 
 	if err != nil {
 		tx.Rollback(ctx)
@@ -89,7 +89,7 @@ func MakeItemDone(ctx context.Context, id ulid.ULID) error {
 		return err
 	}
 
-	if err = SaveItem(ctx, tx, item); err != nil {
+	if err = saveItem(ctx, tx, item); err != nil {
 		tx.Rollback(ctx)
 		return err
 	}

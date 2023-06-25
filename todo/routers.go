@@ -1,13 +1,23 @@
-package handlers
+package todo
 
 import (
 	"encoding/json"
-	"mda/todo"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/oklog/ulid/v2"
 )
+
+func Router() *chi.Mux {
+	r := chi.NewMux()
+
+	r.Get("/", listItemsHandler)
+	r.Get("/{itemId}", getItemHandler)
+	r.Post("/", createItemHandler)
+	r.Post("/done", makeItemDoneHandler)
+
+	return r
+}
 
 func writeMessage(w http.ResponseWriter, status int, msg string) {
 	var j struct {
@@ -26,14 +36,14 @@ func writeError(w http.ResponseWriter, status int, err error) {
 	writeMessage(w, status, err.Error())
 }
 
-func ListItems(w http.ResponseWriter, req *http.Request) {
+func listItemsHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
 	var resp struct {
-		Items []todo.TodoItem `json:"items,omitempty"`
+		Items []TodoItem `json:"items,omitempty"`
 	}
 
-	items, err := todo.ListItems(ctx)
+	items, err := listItems(ctx)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		return
@@ -44,7 +54,7 @@ func ListItems(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func GetItem(w http.ResponseWriter, req *http.Request) {
+func getItemHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
 	itemId := chi.URLParam(req, "itemId")
@@ -56,12 +66,12 @@ func GetItem(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var resp todo.TodoItem
+	var resp TodoItem
 
-	item, err := todo.FindItem(ctx, id)
+	item, err := findItem(ctx, id)
 
 	if err != nil {
-		if err == todo.ErrTodoNotFound {
+		if err == ErrTodoNotFound {
 			writeMessage(w, http.StatusNotFound, "item not found")
 			return
 		}
@@ -76,7 +86,7 @@ func GetItem(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func CreateItem(w http.ResponseWriter, req *http.Request) {
+func createItemHandler(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		return
@@ -86,7 +96,7 @@ func CreateItem(w http.ResponseWriter, req *http.Request) {
 
 	title := req.FormValue("title")
 
-	id, err := todo.CreateItem(ctx, title)
+	id, err := createItem(ctx, title)
 
 	if err != nil {
 		writeError(w, http.StatusBadRequest, err)
@@ -105,7 +115,7 @@ func CreateItem(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func MakeItemDone(w http.ResponseWriter, req *http.Request) {
+func makeItemDoneHandler(w http.ResponseWriter, req *http.Request) {
 	if err := req.ParseForm(); err != nil {
 		writeError(w, http.StatusBadRequest, err)
 		return
@@ -121,7 +131,7 @@ func MakeItemDone(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = todo.MakeItemDone(ctx, id)
+	err = makeItemDone(ctx, id)
 
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
