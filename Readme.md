@@ -36,6 +36,7 @@ this object with these principle in mind:
 - High cohesion, low coupling. Things that should be together should be in the
   same place.
 - Sensible dependencies. I have justification why I use the dependencies.
+- Sensible defaults. Every configuration has defaults that make the development easy.
 
 This project is as plain as vanilla. I don't use any ORMs and strive to have
 very minimal dependencies. Heck, this project doesn't have any interface
@@ -49,6 +50,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/rs/zerolog v1.29.1
 	gopkg.in/guregu/null.v4 v4.0.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 ```
 
@@ -71,6 +73,8 @@ those dependencies
 4. `null` is a library that I usually use to avoid `nil` pointer exception and
    avoid to use pointer when I can use a value instead. This dependency is
    optional.
+
+5. `yaml` is a library to parse yaml file
 
 ## How to navigate this project
 
@@ -129,12 +133,60 @@ parameter, and the fake version will be compiled instead.
 go build --tags=fake 
 ```
 
+## Configuration
+
+### Rationale 
+
+The early version of this program didn't have configuration file and all
+parameters are being hard-coded. At first I think that's enough. However, I
+think giving an example of how to implement server who adheres to [12 Factor
+App](https://12factor.net/) rules are important.
+
+### Implementation
+
+See `config.go`. This file contains code to parse configuration files from two
+sources: environment variables and configuration files. Configuration files
+takes precedence. These are the environment variables, configuration file key
+path and default value.
+
+| Environment Variable  | YAML keypath  | Default value | Description          |
+|-----------------------|---------------|---------------|----------------------|
+| `KAD_LISTEN_HOST`     | `listen.host` | "127.0.0.1"   | Server Listen Address|
+| `KAD_LISTEN_PORT`     | `listen.port` | 8080          | Server Port Address  |
+| `KAD_DB_HOST`         | `db.host`     | "127.0.0.1"   | Postgres Host        |
+| `KAD_DB_PORT`         | `db.port`     | 5432          | Postgres Port        |
+| `KAD_DB_NAME`         | `db.db_name`  | "todo"        | Database Name        |
+| `KAD_DB_SSL`          | `db.ssl_mode` | "disable"     | SSL Mode             |
+
+The default values, if we express it in configuration file is as follows.
+
+```yaml
+listen:
+  host: 127.0.0.1
+  port: 8080
+
+db:
+  db_name: todo
+  host: 127.0.0.1
+  port: 5432 
+  ssl_mode: disable
+```
+
+### Configuration file location
+
+The program will search for `config.yaml` on current working directory, or you
+can pass `-c` flag to force the program to use your own configuration file name.
+For example you can run it using something like this:
+
+```
+./mda -c someconfig.yml
+```
+
 ## Summary
 
 This project is a heuristic, not a guide or a 'framework' of structure. It's to
 show that you can have a sensible code structure and architecture by sticking
 to the simplicity of Go.
-
 
 ## LICENSE
 

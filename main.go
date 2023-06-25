@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"mda/todo"
 	"mda/todo/handlers"
 	"net/http"
@@ -13,12 +14,26 @@ import (
 )
 
 func main() {
+	var configFileName string
+	flag.StringVar(&configFileName, "c", "config.yml", "Config file name")
 
-	connStr := `host=localhost port=5432 dbname=kad_todo user=postgres`
+	flag.Parse()
+
+	cfg := defaultConfig()
+	cfg.loadFromEnv()
+
+	if len(configFileName) > 0 {
+		err := loadConfigFromFile(configFileName, &cfg)
+		if err != nil {
+			log.Warn().Str("file", configFileName).Err(err).Msg("cannot load config file, use defaults")
+		}
+	}
+
+	log.Debug().Any("config", cfg).Msg("config loaded")
 
 	ctx := context.Background()
 
-	pool, err := pgxpool.New(ctx, connStr)
+	pool, err := pgxpool.New(ctx, cfg.DBConfig.ConnStr())
 
 	if err != nil {
 		log.Error().Err(err).Msg("unable to connect to database")
@@ -37,7 +52,7 @@ func main() {
 
 	log.Info().Msg("Starting up server...")
 
-	if err := http.ListenAndServe(":8080", r); err != nil {
+	if err := http.ListenAndServe(cfg.Listen.Addr(), r); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start the server")
 		return
 	}
