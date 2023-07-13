@@ -106,12 +106,16 @@ usually have these:
    object which represent a connection pool to postgresql instance. It's in the
    `db.go`.
 
-4. __The service__. This is a file with functions which define a _transaction
+4. __The read models__. This is types and structures to represent portion or
+   aggregation of data from storage. You __cannot modify__ the read models
+   because as name implies, it's for reading.
+
+5. __The service__. This is a file with functions which define a _transaction
    boundary_. This service is agnostic with the protocols. __There should be no
    protocol-related data__ in here such as HTTP Response Code. Also implemented
    in pure functions in `service.go`.
 
-5. __The protocols__. ~~This is a place where you put the handlers to your
+6. __The protocols__. ~~This is a place where you put the handlers to your
    requests. I put it on separate package `handlers` because I don't want to use
    something like `CreateTodoItemHandler` and instead I can just use
    `handlers.CreateTodoItem`. The implication is that if you have many modules

@@ -6,22 +6,22 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-func listItems(ctx context.Context) ([]TodoItem, error) {
+func listItems(ctx context.Context) (TodoList, error) {
 	tx, err := pool.Begin(ctx)
 
 	if err != nil {
-		return nil, err
+		return TodoList{}, err
 	}
 
-	items, err := findAllItems(ctx, tx)
+	list, err := findAllItems(ctx, tx)
 
 	if err != nil {
-		return nil, err
+		return TodoList{}, err
 	}
 
 	tx.Commit(ctx)
 
-	return items, nil
+	return list, nil
 }
 
 func createItem(ctx context.Context, title string) (id ulid.ULID, err error) {

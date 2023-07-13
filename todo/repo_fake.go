@@ -10,14 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var items []TodoItem
-
-func findAllItems(ctx context.Context, tx pgx.Tx) ([]TodoItem, error) {
-
-	log.Debug().Msg("Fake find all item")
-	return items, nil
-}
-
 func findItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error) {
 
 	log.Debug().Msg("Fake find item")
@@ -25,7 +17,7 @@ func findItemById(ctx context.Context, tx pgx.Tx, id ulid.ULID) (TodoItem, error
 	var found bool
 	var item TodoItem
 
-	for _, v := range items {
+	for _, v := range fake_items {
 		if id == v.Id {
 			item = v
 			found = true
@@ -45,15 +37,15 @@ func saveItem(ctx context.Context, tx pgx.Tx, item TodoItem) error {
 
 	var found bool
 
-	for i, v := range items {
+	for i, v := range fake_items {
 		if item.Id == v.Id {
-			items[i] = item
+			fake_items[i] = item
 			return nil
 		}
 	}
 
 	if !found {
-		items = append(items, item)
+		fake_items = append(fake_items, item)
 	}
 	return nil
 

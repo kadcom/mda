@@ -39,16 +39,12 @@ func writeError(w http.ResponseWriter, status int, err error) {
 func listItemsHandler(w http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
 
-	var resp struct {
-		Items []TodoItem `json:"items,omitempty"`
-	}
-
-	items, err := listItems(ctx)
+	resp, err := listItems(ctx)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err)
 		return
 	}
-	resp.Items = items
+
 	w.Header().Add("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp)
