@@ -1,7 +1,6 @@
 package todo
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 
@@ -14,10 +13,10 @@ var (
 )
 
 type TodoItem struct {
-	Id        ulid.ULID `json:"id"`
-	Title     string    `json:"title"`
-	CreatedAt time.Time `json:"created_at"`
-	DoneAt    null.Time `json:"done_at"`
+	Id        ulid.ULID
+	Title     string
+	CreatedAt time.Time
+	DoneAt    null.Time
 }
 
 func (t TodoItem) IsDone() bool {
@@ -31,24 +30,6 @@ func (t *TodoItem) MakeDone() error {
 
 	t.DoneAt = null.TimeFrom(time.Now())
 	return nil
-}
-
-func (t TodoItem) MarshalJSON() ([]byte, error) {
-	var j struct {
-		Id        ulid.ULID  `json:"id"`
-		Title     string     `json:"title"`
-		CreatedAt time.Time  `json:"created_at"`
-		DoneAt    *time.Time `json:"done_at,omitempty"`
-		IsDone    bool       `json:"is_done"`
-	}
-
-	j.Id = t.Id
-	j.Title = t.Title
-	j.CreatedAt = t.CreatedAt
-	j.DoneAt = t.DoneAt.Ptr()
-	j.IsDone = t.IsDone()
-
-	return json.Marshal(j)
 }
 
 func NewTodoItem(title string) (TodoItem, error) {

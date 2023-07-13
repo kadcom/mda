@@ -92,7 +92,9 @@ module there's __no rules__ on how you organise files. However, in my project, I
 usually have these:
 
 1. __The domain object__. This defines the objects which maintain its state and
-   being persisted. In this example it's in the `todo_item.go` file.
+   being persisted. In this example it's in the `todo_item.go` file. Within the
+   project there's `todo_item_json.go` this is for serialisation only. I prefer
+   to separate the json representation on different file.
 
 2. __The repository__. This is an abstraction where you can fetch and save your
    domain objects. I just name it 'repository' because it's _somewhat_ similar
